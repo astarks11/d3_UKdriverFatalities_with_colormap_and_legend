@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>index</title>
+	<meta charset="utf-8">
+	<script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+	<style>
+		svg {
+			display:block;
+			fill:gray;
+			margin-bottom: 10px;
+			padding-bottom: 30px; 
+			padding-left: 50px;
+			padding-right:10px;
+			padding-top: 10px;
+		}
+		div > #buttons {
+			margin-bottom: 10px;
+		}
+		div > svg {
+			height:520px;
+		}
+		circle {
+			stroke-width:1;
+			stroke:gray;
+		}
+      	.my-chart {
+      		fill: #bbb;
+      		background-color: #fee;
+      	}
+	</style>
+	<script src="scores.js"></script>
+	<script src="svg.js"></script>
+	<script src="ukDriverFatalities.js"></script>
+
+</head>
+<body>
+	<p id="demo"></p>
+<script>
+
+		var svgSize = 500;
+		getMax();
+		createButtons();
+		createDiv();
+		processPlotNew();
+
+
+		function createDiv() {
+			var scatterplot_div = document.createElement("div");
+			scatterplot_div.id = "scatterplot_div";
+			document.body.appendChild(scatterplot_div);
+		}
+
+		function createButtons() {
+			var div = document.createElement("div");
+			div.id = "buttons"
+			var button = document.createElement("button");
+			var button2 = document.createElement("button");
+			var button3 = document.createElement("button");
+
+			button.innerHTML = "Chart 1";
+			button2.innerHTML = "Chart 2";
+			button3.innerHTML = "Chart 3";
+
+			div.appendChild(button);
+			div.appendChild(button2);
+			div.appendChild(button3);
+			document.body.appendChild(div);
+			button.addEventListener ("click", function() {
+  				d3.selectAll("svg").remove();
+  				processPlotNew();
+  			});
+  			button2.addEventListener ("click", function() {
+  				d3.selectAll("svg").remove();
+  				processPlotNew2();
+  			});
+  			button3.addEventListener ("click", function() {
+  				d3.selectAll("svg").remove();
+  				processPlotNew3();
+  			});
+
+		} // createButtons
+
+		function getMax() {
+			var max = 99999;
+			for (var i = 0; i < ukDriverFatalities.length; i++) {
+				var curr = ukDriverFatalities[i].count;
+				if (max > curr){
+					max = curr;
+				}
+			}
+			//document.getElementById("demo").innerHTML += "max:"+(max);
+		}
+
+
+	function processPlotNew() {
+			var body = d3.select("#scatterplot_div");
+			var svg = body.append("svg").attr("width",500).attr("height",510).attr("id","scatterplot_new");
+
+			svg.selectAll("circle").data(scores).enter().append("circle")
+			.attr("cx",function(d) { return cxScale(d.SATM); })
+			.attr("cy",function(d) { return cyScale(d.SATV); })
+			.attr("r",function(d) { return rScale(d.ACT); })
+			.attr("fill",function(d) { return colScale(d.SATV); })
+				.attr("stroke","gray").attr("stroke-width",.2);
+
+			plotAxis(svg);
+		} //processPlotNew
+
+
+	function processPlotNew2() {
+			var body = d3.select("#scatterplot_div");
+			var svg = body.append("svg").attr("width",500).attr("height",500).attr("id","scatterplot_new2");
+
+			svg.selectAll("circle").data(scores).enter().append("circle")
+			.attr("cx",function(d) { return cxScale(d.SATM); })
+			.attr("cy",function(d) { return cyScale(d.SATV); })
+			.attr("r",function(d) { return rScale(d.ACT); })
+			.attr("fill",function(d) { return colScale2(d.SATV); })
+				.attr("stroke","gray").attr("stroke-width",.2);
+
+			plotAxis(svg);
+
+		} //processPlotNew2
+
+
+	function processPlotNew3() {
+			var body = d3.select("#scatterplot_div");
+			var svg = body.append("svg").attr("width",500).attr("height",500).attr("id","scatterplot_new3");
+
+			svg.selectAll("circle").data(scores).enter().append("circle")
+			.attr("cx",function(d) { return cxScale(d.SATM); })
+			.attr("cy",function(d) { return cyScale(d.SATV); })
+			.attr("r",function(d) { return rScale(d.ACT); })
+			.attr("fill",function(d) { return colScale3(d.SATV); })
+				.attr("stroke","gray").attr("stroke-width",.2);
+
+			plotAxis(svg);
+
+		} //processPlotNew3
+
+
+	function cxScale(satm) {
+		var scale = d3.scaleLinear();
+		scale.domain([300,800]);
+		scale.range([0,490]);
+		return scale(satm);
+	} // cxScale
+	function cyScale(satv) {
+		var scale = d3.scaleLinear();
+		scale.domain([300,800]);
+		scale.range([40,490]);
+		return 500-scale(satv);
+	} // cxScale
+
+	function rScale(act) {
+		var scale = d3.scaleSqrt();
+		scale.domain([1,36]);
+		scale.range([1,9]); // wants 10,20? doesn't look good
+		return scale(act);
+	} // rScale
+	function colScale(satv) {
+		var scale = d3.scaleLinear();
+		scale.domain([300,800]);
+		scale.range(["red","green"]);
+		return scale(satv);
+	} // colScale
+
+	function colScale2(satv) {
+		var scale = d3.scaleLinear();
+		scale.domain([300,550,800]);
+		scale.range(["#d7191c","#ffffbf","#1a9641"]);
+		return scale(satv);
+	} // colScale
+
+	function colScale2(satv) {
+		var scale = d3.scaleLinear();
+		scale.domain([300,550,800]);
+		scale.range(["#d7191c","#ffffbf","#1a9641"]);
+		return scale(satv);
+	} // colScale
+
+	function colScale3(satv) {
+		var scale = d3.scaleQuantize();
+		scale.domain([300,800]);
+		scale.range(["#d7191c","#fdae61","#a6d96a","#1a9641"]);
+		return scale(satv);
+	} // colScale
+
+	function plotAxis(svg) {
+		var x = d3.scaleLinear().range([0,500]);
+		x.domain(d3.extent(scores, function(d) { return d.SATM; }));
+		var y = d3.scaleLinear().range([500,0]);
+		y.domain(d3.extent(scores, function(d) { return d.SATV; }));
+
+		svg.append("g")
+			.attr("transform", "translate(0,500)")
+			.call(d3.axisBottom(x));
+
+		svg.append("text")
+			.attr("transform","translate(250,535)")
+			.style("text-anchor",",middle")
+			.attr("font-size","20")
+			.text("SATM");
+
+		svg.append("g")
+			.attr("transform", "translate(0,0)")
+			.call(d3.axisLeft(y));
+
+		svg.append("text")
+			.attr("transform","rotate(-90)")
+			.attr("x","-250")
+			.attr("y","-35")
+			.attr("font-size","20")
+			.style("text-anchor",",middle")
+			.text("SATV");
+	} // plotAxis
+
+
+</script>
+</body>
+</html>
